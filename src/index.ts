@@ -8,7 +8,23 @@ function loadAgentPrompt(pluginDir: string): string {
     return readFileSync(filePath, "utf-8")
   } catch {
     throw new Error(
-      `[frontend-kit] Missing required file: ${filePath}. The plugin installation may be incomplete.`,
+      `[synergy-frontend-kit] Missing required file: ${filePath}. The plugin installation may be incomplete.`,
+    )
+  }
+}
+
+/** Deduplicates config warnings so each missing MCP server is warned about at most once per process. */
+const mcpWarned = new Set<string>()
+
+function warnMissingMcp(mcpConfig: Record<string, unknown>) {
+  const managed = ["frontend-kit::shadcn", "frontend-kit::layout-context", "frontend-kit::playwright"]
+  for (const key of managed) {
+    if (key in mcpConfig) continue
+    if (mcpWarned.has(key)) continue
+    mcpWarned.add(key)
+    console.warn(
+      `[synergy-frontend-kit] MCP server "${key}" not configured. ` +
+        `Run 'synergy frontend-kit setup' to initialize frontend tooling.`,
     )
   }
 }
@@ -22,6 +38,12 @@ export const FrontendKitPlugin: Plugin = {
 
     return {
       skills: [
+        {
+          name: "project-init",
+          description:
+            "Teaches the agent to self-diagnose and auto-initialize frontend tooling (shadcn/ui, layout.design, Playwright) when MCP tools return configuration-missing errors. Use before starting any frontend design work. Triggers: 'new project', 'init', 'setup', 'MCP error', 'tool not available'.",
+          dir: "skills/project-init",
+        },
         {
           name: "frontend-design",
           description:
@@ -37,38 +59,20 @@ export const FrontendKitPlugin: Plugin = {
         {
           name: "color-expert",
           description:
-            "Use when working with color naming, color theory, color spaces, color definitions, or any task involving color knowledge - palettes, ramps, gradients, conversions, accessibility, perceptual matching, pigment mixing, print-vs-screen color, CSS color syntax, or historical color terminology. Triggers: 'color', 'palette', 'OKLCH', 'contrast', 'CSS color'.",
+            "Color science expertise: OKLCH color spaces, palette generation algorithms, APCA/WCAG contrast, color harmony theory, and CSS Color 4/5 syntax. Use for any color selection, palette generation, or accessibility contrast work. Triggers: 'color', 'palette', 'OKLCH', 'hex', 'contrast', 'APCA', 'WCAG'.",
           dir: "skills/color-expert",
         },
         {
           name: "typography",
           description:
-            "Apply professional typography principles to create readable, hierarchical, and aesthetically refined interfaces. Use when setting type scales, choosing fonts, adjusting spacing, designing text-heavy layouts, implementing dark mode typography, or when asked about readability, font pairing, line height, measure, typographic hierarchy, variable fonts, font loading, or OpenType features. Triggers: 'typography', 'font', 'type scale', 'font pairing', 'readability', 'line height'.",
+            "Typography grounded in Bringhurst principles: font pairing methodology, 6 modular type scales, variable fonts, CJK/RTL internationalization, OpenType features, and web font loading strategies. Use for typeface selection, type system design, or font pairing. Triggers: 'font', 'type', 'typography', 'serif', 'sans', 'heading', 'body text'.",
           dir: "skills/typography",
         },
         {
           name: "motion-design",
           description:
-            "Applies motion design principles to create emotionally-driven, technically sound animations and transitions. Provides timing, easing, choreography, and Disney animation principles adapted for UI. Use when creating animations, transitions, micro-interactions, loading states, page transitions, scroll-triggered effects, or any motion work. Triggers: 'animation', 'motion', 'transition', 'easing', 'micro-interaction', 'loading state'.",
+            "Universal motion design principles (LottieFiles official): Disney's 12 principles adapted for UI, emotion-to-motion mapping, motion personality archetypes, duration/easing tables, and quality checklist. Use when planning animations or motion systems. Triggers: 'animation', 'motion', 'transition', 'easing', 'GSAP', 'Framer Motion'.",
           dir: "skills/motion-design",
-        },
-        {
-          name: "soft-design",
-          description:
-            "Taste soft-skill: design language for gentle, approachable interfaces. Rounded corners, soft shadows, warm palettes, generous whitespace.",
-          dir: "skills/soft-design",
-        },
-        {
-          name: "minimalist-design",
-          description:
-            "Taste minimalist-skill: reductive design principles. Essential elements only, negative space as a feature, typography-driven layouts.",
-          dir: "skills/minimalist-design",
-        },
-        {
-          name: "project-init",
-          description:
-            "Teaches the agent to self-diagnose and auto-initialize frontend tooling (shadcn/ui, layout.design, Playwright) when MCP tools return configuration-missing errors. Use before starting any frontend design work. Triggers: 'new project', 'init', 'setup', 'MCP error', 'tool not available'.",
-          dir: "skills/project-init",
         },
         {
           name: "implementation-rules",
@@ -81,6 +85,18 @@ export const FrontendKitPlugin: Plugin = {
           description:
             "Run accessibility audits on web projects combining automated scanning (axe-core, Lighthouse) with WCAG 2.1 AA compliance mapping, manual check guidance, and structured reporting. Triggers: 'accessibility audit', 'a11y audit', 'WCAG audit', 'accessibility check', 'compliance scan'.",
           dir: "skills/a11y-audit",
+        },
+        {
+          name: "soft-design",
+          description:
+            "Taste soft-skill: design language for gentle, approachable interfaces. Rounded corners, soft shadows, warm palettes, generous whitespace.",
+          dir: "skills/soft-design",
+        },
+        {
+          name: "minimalist-design",
+          description:
+            "Taste minimalist-skill: reductive design principles. Essential elements only, negative space as a feature, typography-driven layouts.",
+          dir: "skills/minimalist-design",
         },
       ],
 
@@ -104,20 +120,7 @@ export const FrontendKitPlugin: Plugin = {
           typeof raw === "object" && raw !== null
             ? (raw as Record<string, unknown>)
             : {}
-        const managedKeys = [
-          "frontend-kit::shadcn",
-          "frontend-kit::layout-context",
-          "frontend-kit::playwright",
-        ]
-
-        for (const key of managedKeys) {
-          if (!(key in mcpConfig)) {
-            console.warn(
-              `[frontend-kit] MCP server "${key}" not configured. ` +
-                `Run 'synergy frontend-kit setup' to initialize frontend tooling.`,
-            )
-          }
-        }
+        warnMissingMcp(mcpConfig)
       },
     }
   },
