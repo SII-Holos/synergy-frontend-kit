@@ -46,6 +46,18 @@ export const FrontendKitPlugin: Plugin = {
             "Taste minimalist-skill: reductive design principles. Essential elements only, negative space as a feature, typography-driven layouts.",
           dir: "skills/minimalist-design",
         },
+        {
+          name: "project-init",
+          description:
+            "Teaches the agent to self-diagnose and auto-initialize frontend tooling (shadcn/ui, layout.design, Playwright) when MCP tools return configuration-missing errors. Use before starting any frontend design work. Triggers: 'new project', 'init', 'setup', 'MCP error', 'tool not available'.",
+          dir: "skills/project-init",
+        },
+        {
+          name: "implementation-rules",
+          description:
+            "24 deterministic anti-slop coding rules to prevent AI-generated frontend anti-patterns. Covers color, typography, layout, motion, and accessibility. Standing orders for all frontend code. Triggers: 'CSS', 'style', 'component', 'layout', 'Tailwind', 'animation', 'font', 'color', 'spacing', 'accessibility'.",
+          dir: "skills/implementation-rules",
+        },
       ],
 
       agents: {

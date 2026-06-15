@@ -15,7 +15,9 @@
       { "name": "frontend-design", "description": "Anthropic's frontend design methodology: plan-before-code, declarative-first, atomic refinement. Use when building or redesigning frontend UIs.", "dir": "skills/frontend-design" },
       { "name": "taste-frontend", "description": "Taste Skill v2: systematic design sensibility for frontend. Covers typography, spacing, color theory, and visual hierarchy.", "dir": "skills/taste-frontend" },
       { "name": "soft-design", "description": "Taste soft-skill: design language for gentle, approachable interfaces. Rounded corners, soft shadows, warm palettes, generous whitespace.", "dir": "skills/soft-design" },
-      { "name": "minimalist-design", "description": "Taste minimalist-skill: reductive design principles. Essential elements only, negative space as a feature, typography-driven layouts.", "dir": "skills/minimalist-design" }
+      { "name": "minimalist-design", "description": "Taste minimalist-skill: reductive design principles. Essential elements only, negative space as a feature, typography-driven layouts.", "dir": "skills/minimalist-design" },
+      { "name": "project-init", "description": "Teaches the agent to self-diagnose and auto-initialize frontend tooling (shadcn/ui, layout.design, Playwright) when MCP tools return configuration-missing errors.", "dir": "skills/project-init" },
+      { "name": "implementation-rules", "description": "24 deterministic anti-slop coding rules to prevent AI-generated frontend patterns. Covers color, typography, layout, motion, and accessibility. Standing orders for all frontend code.", "dir": "skills/implementation-rules" }
     ],
     "agents": [
       { "name": "frontend-designer", "description": "Frontend design specialist. Produces visually polished, accessible UIs using React, Tailwind CSS, and shadcn/ui. Applies design methodology from loaded skills.", "mode": "subagent" }
@@ -32,8 +34,8 @@
       "schema": {
         "enabledSkills": {
           "type": "array",
-          "items": { "type": "string", "enum": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design"] },
-          "default": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design"],
+          "items": { "type": "string", "enum": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design", "project-init", "implementation-rules"] },
+          "default": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design", "project-init", "implementation-rules"],
           "description": "Which design skills to enable"
         },
         "mcp": {
@@ -46,9 +48,9 @@
         }
       },
       "defaults": {
-        "enabledSkills": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design"],
+        "enabledSkills": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design", "project-init", "implementation-rules"],
         "mcp": { "shadcn": true, "layoutContext": true, "playwright": true }
       }
     }
-  },
+  }
 }
