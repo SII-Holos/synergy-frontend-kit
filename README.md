@@ -69,7 +69,7 @@ Three servers, auto-started on plugin load, zero config needed:
 ### One-Command Install
 
 ```bash
-synergy plugin add EricSanchezok/synergy-frontend-kit
+synergy plugin add github:EricSanchezok/synergy-frontend-kit
 ```
 
 That's it. Skills load automatically. The `frontend-designer` agent is available for delegation. MCP servers start on plugin load. The agent self-diagnoses and initializes missing project tooling on its first design task.
@@ -85,7 +85,7 @@ That's it. Skills load automatically. The `frontend-designer` agent is available
 ## Install
 
 ```bash
-synergy plugin add EricSanchezok/synergy-frontend-kit
+synergy plugin add github:EricSanchezok/synergy-frontend-kit
 ```
 
 ### Upgrade
