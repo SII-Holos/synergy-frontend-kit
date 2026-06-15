@@ -26,6 +26,10 @@ trap cleanup EXIT
 declare -A SOURCES=(
   ["frontend-design"]="https://github.com/anthropics/skills.git::skills/frontend-design/SKILL.md"
   ["taste-frontend"]="https://github.com/Leonxlnx/taste-skill.git::skills/taste-skill/SKILL.md"
+  ["color-expert"]="https://github.com/meodai/skill.color-expert.git::SKILL.md"
+  ["typography"]="https://github.com/petekp/agent-skills.git::skills/typography/SKILL.md"
+  ["motion-design"]="https://github.com/LottieFiles/motion-design-skill.git::skills/motion-design/SKILL.md"
+  ["a11y-audit"]="https://github.com/snapsynapse/skill-a11y-audit.git::a11y-audit/SKILL.md"
   ["soft-design"]="https://github.com/Leonxlnx/taste-skill.git::skills/soft-skill/SKILL.md"
   ["minimalist-design"]="https://github.com/Leonxlnx/taste-skill.git::skills/minimalist-skill/SKILL.md"
 )
