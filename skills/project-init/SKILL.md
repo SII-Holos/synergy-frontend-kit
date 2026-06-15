@@ -56,7 +56,7 @@ Once all three checks pass in a given session, set a mental flag ("project-init:
 
 ## Edge cases
 
-- **No shell access:** If you don't have permission to run shell commands, tell the user to run `synergy frontend-kit setup` manually and do not proceed with design work until they confirm it's done.
+- **No shell access:** If you don't have permission to run shell commands, tell the user to run `synergy synergy-frontend-kit setup` manually and do not proceed with design work until they confirm it's done.
 - **shadcn init still prompts:** The `-d` flag should prevent interactive prompts, but if it doesn't, pass `y\n` to stdin.
 - **Playwright install times out:** If the install takes longer than 3 minutes, skip it and continue without visual verification. Note this in your response so the user knows screenshots won't work until the browser is installed.
 - **Partial setup:** If only some checks pass, fix the failing ones and skip the ones that already passed (caching applies per-check, not just at the end).

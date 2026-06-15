@@ -13,24 +13,8 @@ function loadAgentPrompt(pluginDir: string): string {
   }
 }
 
-/** Deduplicates config warnings so each missing MCP server is warned about at most once per process. */
-const mcpWarned = new Set<string>()
-
-function warnMissingMcp(mcpConfig: Record<string, unknown>) {
-  const managed = ["frontend-kit::shadcn", "frontend-kit::layout-context", "frontend-kit::playwright"]
-  for (const key of managed) {
-    if (key in mcpConfig) continue
-    if (mcpWarned.has(key)) continue
-    mcpWarned.add(key)
-    console.warn(
-      `[synergy-frontend-kit] MCP server "${key}" not configured. ` +
-        `Run 'synergy frontend-kit setup' to initialize frontend tooling.`,
-    )
-  }
-}
-
 export const FrontendKitPlugin: Plugin = {
-  id: "frontend-kit",
+  id: "synergy-frontend-kit",
   name: "Synergy Frontend Kit",
 
   async init(ctx) {
@@ -112,15 +96,6 @@ export const FrontendKitPlugin: Plugin = {
 
       cli: {
         setup: setupCommand(ctx),
-      },
-
-      async config(config: unknown) {
-        const raw = (config as Record<string, unknown> | undefined)?.mcp
-        const mcpConfig =
-          typeof raw === "object" && raw !== null
-            ? (raw as Record<string, unknown>)
-            : {}
-        warnMissingMcp(mcpConfig)
       },
     }
   },

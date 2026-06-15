@@ -97,7 +97,7 @@ else
   echo "Summary: $updated_count updated, $unchanged_count unchanged, $failed_count failed"
   if [[ $updated_count -gt 0 ]]; then
     echo "Skills updated. Commit the changes and release a new version."
-    echo "Users upgrade via: synergy plugin update frontend-kit"
+    echo "Users upgrade via: synergy plugin update synergy-frontend-kit"
   fi
 fi
 

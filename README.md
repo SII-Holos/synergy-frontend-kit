@@ -93,7 +93,7 @@ synergy plugin add github:EricSanchezok/synergy-frontend-kit
 Skill content is bundled with the plugin. When upstream skills are updated, we release a new version:
 
 ```bash
-synergy plugin update frontend-kit
+synergy plugin update synergy-frontend-kit
 ```
 
 ---
@@ -140,7 +140,7 @@ Disable specific skills or MCP servers in your `synergy.jsonc`:
 ```jsonc
 {
   "pluginConfig": {
-    "frontend-kit": {
+    "synergy-frontend-kit": {
       "enabledSkills": [
         "project-init",
         "frontend-design",
@@ -233,7 +233,7 @@ bash scripts/update.sh --dry-run   # preview changes
 bash scripts/update.sh              # apply updates
 ```
 
-Then commit, tag, and release. Users upgrade via `synergy plugin update frontend-kit`.
+Then commit, tag, and release. Users upgrade via `synergy plugin update synergy-frontend-kit`.
 
 ---
 
