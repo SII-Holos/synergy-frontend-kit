@@ -1,0 +1,56 @@
+{
+  "name": "synergy-frontend-kit",
+  "version": "0.1.0",
+  "description": "Professional frontend design capabilities for Synergy agents — design methodology skills, shadcn/ui component access, layout enforcement, and visual verification.",
+  "author": "Synergy Community",
+  "repository": "https://github.com/niexiaohang/synergy-frontend-kit",
+  "license": "MIT",
+  "keywords": ["frontend", "design", "ui", "tailwind", "shadcn", "react"],
+  "icon": "🎨",
+  "minSynergyVersion": "1.1.26",
+  "engines": { "synergy": ">=1.1.26", "bun": ">=1.2.0" },
+  "main": "./src/index.ts",
+  "contributes": {
+    "skills": [
+      { "name": "frontend-design", "description": "Anthropic's frontend design methodology: plan-before-code, declarative-first, atomic refinement. Use when building or redesigning frontend UIs.", "dir": "skills/frontend-design" },
+      { "name": "taste-frontend", "description": "Taste Skill v2: systematic design sensibility for frontend. Covers typography, spacing, color theory, and visual hierarchy.", "dir": "skills/taste-frontend" },
+      { "name": "soft-design", "description": "Taste soft-skill: design language for gentle, approachable interfaces. Rounded corners, soft shadows, warm palettes, generous whitespace.", "dir": "skills/soft-design" },
+      { "name": "minimalist-design", "description": "Taste minimalist-skill: reductive design principles. Essential elements only, negative space as a feature, typography-driven layouts.", "dir": "skills/minimalist-design" }
+    ],
+    "agents": [
+      { "name": "frontend-designer", "description": "Frontend design specialist. Produces visually polished, accessible UIs using React, Tailwind CSS, and shadcn/ui. Applies design methodology from loaded skills.", "mode": "subagent" }
+    ],
+    "mcp": {
+      "shadcn": { "type": "local", "command": ["npx", "-y", "shadcn@latest", "mcp"], "description": "shadcn/ui component registry and code generation" },
+      "layout-context": { "type": "local", "command": ["npx", "-y", "@layoutdesign/context", "serve"], "description": "Design system enforcement and layout context" },
+      "playwright": { "type": "local", "command": ["npx", "-y", "@playwright/mcp@latest"], "description": "Browser automation for visual verification and screenshots" }
+    },
+    "commands": [
+      { "name": "setup", "description": "Initialize frontend tooling in the current project (shadcn/ui, layout.design, Playwright)" },
+      { "name": "update", "description": "Sync bundled skills with upstream source repositories" }
+    ],
+    "config": {
+      "schema": {
+        "enabledSkills": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design"] },
+          "default": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design"],
+          "description": "Which design skills to enable"
+        },
+        "mcp": {
+          "type": "object",
+          "properties": {
+            "shadcn": { "type": "boolean", "default": true },
+            "layoutContext": { "type": "boolean", "default": true },
+            "playwright": { "type": "boolean", "default": true }
+          }
+        }
+      },
+      "defaults": {
+        "enabledSkills": ["frontend-design", "taste-frontend", "soft-design", "minimalist-design"],
+        "mcp": { "shadcn": true, "layoutContext": true, "playwright": true }
+      }
+    }
+  },
+  "lifecycle": { "update": "./scripts/update.sh" }
+}

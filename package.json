@@ -1,0 +1,9 @@
+{
+  "name": "synergy-frontend-kit",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./src/index.ts",
+  "peerDependencies": {
+    "@ericsanchezok/synergy-plugin": ">=1.1.26"
+  }
+}
