@@ -74,9 +74,38 @@ That's it. Skills are available on-demand via the `skill()` tool. MCP servers st
 
 ## Install
 
+### Any agent（非 Synergy）
+
+这 10 个 skill 遵循 [Agent Skills 开放标准](https://agentskills.io)，可在 Claude Code、OpenAI Codex、Cursor、GitHub Copilot、Gemini CLI 等 **69+ agent** 中直接使用：
+
+```bash
+# 一行命令安装全部 10 个前端 skill
+npx skills add EricSanchezok/synergy-frontend-kit --all
+```
+
+也可用 GitHub 官方 CLI：
+
+```bash
+gh skill install EricSanchezok/synergy-frontend-kit --all
+```
+
+按需安装单个 skill：
+
+```bash
+npx skills add EricSanchezok/synergy-frontend-kit --skill implementation-rules --skill color-expert
+```
+
+> `npx skills add` 会自动扫描 repo 中的 `skills/*/SKILL.md`，下载到对应 agent 的 skill 目录，无需 clone。
+
+### Synergy
+
 ```bash
 synergy plugin add github:EricSanchezok/synergy-frontend-kit
 ```
+
+Skills are available on-demand via the `skill()` tool. MCP servers start on plugin load.
+
+> **Note:** MCP servers contributed by plugins require a server restart after the first install (Synergy-core limitation — tracked for fix).
 
 ### Upgrade
 
@@ -122,27 +151,14 @@ Skills are sourced and adapted from community projects:
 `project-init` is original to this project.
 
 ---
-
 ## Configuration
 
-Disable specific skills or MCP servers in your `synergy.jsonc`:
+Disable specific MCP servers in your `synergy.jsonc`:
 
 ```jsonc
 {
   "pluginConfig": {
     "synergy-frontend-kit": {
-      "enabledSkills": [
-        "project-init",
-        "frontend-design",
-        "taste-frontend",
-        "color-expert",
-        "typography",
-        "motion-design",
-        "implementation-rules",
-        "a11y-audit",
-        "soft-design",
-        "minimalist-design"
-      ],
       "mcp": {
         "shadcn": true,
         "layoutContext": true,
