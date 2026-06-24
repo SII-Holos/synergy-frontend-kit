@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "description": "Authoritative upstream source map for bundled Synergy Frontend Kit skills.",
+  "skills": [
+    {
+      "name": "project-init",
+      "source": { "type": "local" },
+      "license": "MIT",
+      "allowLocalPatch": true
+    },
+    {
+      "name": "frontend-design",
+      "source": {
+        "type": "git",
+        "repo": "https://github.com/anthropics/skills.git",
+        "ref": "main",
+        "path": "skills/frontend-design",
+        "include": ["SKILL.md", "LICENSE.txt"]
+      },
+      "license": "Apache-2.0",
+      "licenseFiles": ["LICENSE.txt"],
+      "allowLocalPatch": false
+    },
+    {
+      "name": "taste-frontend",
+      "aliases": ["design-taste-frontend"],
+      "source": {
+        "type": "git",
+        "repo": "https://github.com/Leonxlnx/taste-skill.git",
+        "ref": "main",
+        "path": "skills/taste-skill",
+        "include": ["SKILL.md"]
+      },
+      "license": "MIT",
+      "allowLocalPatch": false
+    },
+    {
+      "name": "color-expert",
+      "source": {
+        "type": "git",
+        "repo": "https://github.com/meodai/skill.color-expert.git",
+        "ref": "main",
+        "path": ".",
+        "include": ["SKILL.md", "references", "LICENSE", "THIRD_PARTY_NOTICES.md", "README.md", "SECURITY.md"]
+      },
+      "license": "Apache-2.0",
+      "licenseFiles": ["LICENSE", "THIRD_PARTY_NOTICES.md"],
+      "allowLocalPatch": false
+    },
+    {
+      "name": "typography",
+      "source": {
+        "type": "git",
+        "repo": "https://github.com/petekp/agent-skills.git",
+        "ref": "main",
+        "path": "skills/typography",
+        "include": ["SKILL.md", "references"]
+      },
+      "license": "MIT",
+      "allowLocalPatch": false
+    },
+    {
+      "name": "motion-design",
+      "source": {
+        "type": "git",
+        "repo": "https://github.com/LottieFiles/motion-design-skill.git",
+        "ref": "main",
+        "path": "skills/motion-design",
+        "include": ["SKILL.md", "director", "reference", "patterns"]
+      },
+      "license": "MIT",
+      "allowLocalPatch": false
+    },
+    {
+      "name": "implementation-rules",
+      "source": { "type": "local" },
+      "license": "MIT",
+      "allowLocalPatch": true
+    },
+    {
+      "name": "a11y-audit",
+      "source": {
+        "type": "git",
+        "repo": "https://github.com/snapsynapse/skill-a11y-audit.git",
+        "ref": "main",
+        "path": "a11y-audit",
+        "include": ["SKILL.md", "references", "scripts", "assets", "MANIFEST.yaml", "CHANGELOG.md"]
+      },
+      "license": "MIT",
+      "allowLocalPatch": false
+    },
+    {
+      "name": "soft-design",
+      "aliases": ["high-end-visual-design"],
+      "source": {
+        "type": "git",
+        "repo": "https://github.com/Leonxlnx/taste-skill.git",
+        "ref": "main",
+        "path": "skills/soft-skill",
+        "include": ["SKILL.md"]
+      },
+      "license": "MIT",
+      "allowLocalPatch": false
+    },
+    {
+      "name": "minimalist-design",
+      "aliases": ["minimalist-ui"],
+      "source": {
+        "type": "git",
+        "repo": "https://github.com/Leonxlnx/taste-skill.git",
+        "ref": "main",
+        "path": "skills/minimalist-skill",
+        "include": ["SKILL.md"]
+      },
+      "license": "MIT",
+      "allowLocalPatch": false
+    }
+  ]
+}

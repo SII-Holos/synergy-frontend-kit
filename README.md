@@ -1,159 +1,100 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/synergy-%E2%89%A52.1.4-6366f1" alt="Synergy">
-  <img src="https://img.shields.io/badge/bun-%E2%89%A51.2.0-f9f5e9" alt="Bun">
-  <img src="https://img.shields.io/badge/license-MIT-22c55e" alt="License">
-  <img src="https://img.shields.io/badge/skills-10-8b5cf6" alt="Skills">
-  <img src="https://img.shields.io/badge/MCP-3-3b82f6" alt="MCP">
-</p>
+# Synergy Frontend Kit
 
-<br>
+Official frontend capability kit for Synergy agents.
 
-<p align="center">
-  <b>Design skills and a verified MCP stack —</b><br>
-  <b>everything Synergy needs to build frontend that doesn't look AI-generated.</b>
-</p>
+It bundles curated design skills, pinned MCP servers, setup automation, and a small Synergy UI surface for checking design readiness. The goal is simple: Synergy should build frontend with real taste, real components, and real verification instead of default AI-looking UI.
 
----
+## Requirements
 
-## Why this exists
-
-AI coding agents produce frontend that looks the same. Generic card grids. Purple gradients. Inter font. No visual hierarchy. No opinion.
-
-This plugin gives Synergy agents **taste**. It doesn't just tell them to "make it pretty" — it gives them a design methodology, a constraint system, 24 anti-slop coding rules, and automated quality checks. The result: UIs that feel designed, not generated.
-
----
-
-## What's inside
-
-<table>
-<tr>
-<td width="80" align="center" valign="top"><br>🎯<br><br></td>
-<td>
-
-### Design Skills
-
-**10 methodology and execution skills** available on-demand via the <code>skill()</code> tool — from high-level design thinking down to concrete coding rules. The agent calls a skill when it needs specialized expertise.
-
-</td>
-</tr>
-<tr>
-<td width="80" align="center" valign="top"><br>🔧<br><br></td>
-<td>
-
-### MCP Stack
-
-Three servers, auto-started on plugin load, zero config needed:
-
-| Server | What it enables |
-|--------|----------------|
-| **shadcn** | Browse, search, and install components — no more generating shadcn from memory |
-| **layout-context** | Design system enforcement — catch hardcoded colors, wrong spacing, undefined tokens |
-| **playwright** | Screenshots, visual verification, accessibility testing — see what you actually built |
-
-</td>
-</tr>
-<tr>
-<td width="80" align="center" valign="top"><br>⚡<br><br></td>
-<td>
-
-### One-Command Install
-
-```bash
-synergy plugin add github:EricSanchezok/synergy-frontend-kit
-```
-
-That's it. Skills are available on-demand via the `skill()` tool. MCP servers start on plugin load. The agent self-diagnoses and initializes missing project tooling on its first design task.
-
-> **Note:** MCP servers contributed by plugins require a server restart after the first install (Synergy-core limitation — tracked for fix).
-
-</td>
-</tr>
-</table>
-
----
+- Synergy `>=2.2.0`
+- Bun `>=1.2.0`
+- Node.js and `npx` for MCP servers and setup commands
 
 ## Install
 
-### Any agent（非 Synergy）
-
-这 10 个 skill 遵循 [Agent Skills 开放标准](https://agentskills.io)，可在 Claude Code、OpenAI Codex、Cursor、GitHub Copilot、Gemini CLI 等 **69+ agent** 中直接使用：
+After the official marketplace entry is merged:
 
 ```bash
-# 一行命令安装全部 10 个前端 skill
-npx skills add EricSanchezok/synergy-frontend-kit --all
+synergy plugin add synergy-frontend-kit
 ```
 
-也可用 GitHub 官方 CLI：
+Direct GitHub installation is useful before the marketplace PR has merged:
 
 ```bash
-gh skill install EricSanchezok/synergy-frontend-kit --all
+synergy plugin add github:SII-Holos/synergy-frontend-kit
 ```
 
-按需安装单个 skill：
-
-```bash
-npx skills add EricSanchezok/synergy-frontend-kit --skill implementation-rules --skill color-expert
-```
-
-> `npx skills add` 会自动扫描 repo 中的 `skills/*/SKILL.md`，下载到对应 agent 的 skill 目录，无需 clone。
-
-### Synergy
+During migration, the source repository may also be mirrored from:
 
 ```bash
 synergy plugin add github:EricSanchezok/synergy-frontend-kit
 ```
 
-Skills are available on-demand via the `skill()` tool. MCP servers start on plugin load.
+## What It Provides
 
-> **Note:** MCP servers contributed by plugins require a server restart after the first install (Synergy-core limitation — tracked for fix).
+### Skills
 
-### Upgrade
+The plugin exposes 10 bundled Agent Skills:
 
-Skill content is bundled with the plugin. When upstream skills are updated, we release a new version:
+| Skill | Purpose |
+| --- | --- |
+| `project-init` | Self-diagnose and initialize missing frontend tooling |
+| `frontend-design` | Distinctive design methodology for new UI and redesigns |
+| `taste-frontend` | Anti-slop frontend guidance for landing pages and portfolios |
+| `color-expert` | Color science, palettes, contrast, OKLCH, print/screen color |
+| `typography` | Type systems, font loading, OpenType, i18n typography |
+| `motion-design` | UI motion principles, timing, easing, and choreography |
+| `implementation-rules` | Deterministic anti-slop frontend coding rules |
+| `a11y-audit` | WCAG 2.1 AA audit workflow with scripts and reporting |
+| `soft-design` | Premium high-end visual design guidance |
+| `minimalist-design` | Clean editorial/minimalist interface guidance |
+
+### MCP Servers
+
+MCP startup is lazy by default and versions are pinned for reproducibility:
+
+| Server | Version | Command |
+| --- | ---: | --- |
+| shadcn/ui | `4.11.0` | `npx -y shadcn@4.11.0 mcp` |
+| layout.design | `0.15.3` | `npx -y @layoutdesign/context@0.15.3 serve` |
+| Playwright MCP | `0.0.76` | `npx -y @playwright/mcp@0.0.76` |
+
+### CLI
 
 ```bash
-synergy plugin update synergy-frontend-kit
+synergy synergy-frontend-kit setup
+synergy synergy-frontend-kit setup --dry-run
+synergy synergy-frontend-kit setup --dry-run --json
 ```
 
----
+The setup command initializes shadcn/ui, layout.design, and Playwright Chromium with pinned versions. It can write project files and run shell commands, so agents should ask before using it in a user workspace.
 
-## Skills
+### UI
 
-| Skill | Source | Focus | Lines |
-|-------|--------|-------|-------|
-| **project-init** | [Synergy](https://github.com/EricSanchezok/synergy-frontend-kit) | Self-diagnose and auto-initialize MCP tooling before design work | 62 |
-| **frontend-design** | [Anthropic](https://github.com/anthropics/skills) | Design methodology: plan-before-code, declarative-first, atomic refinement | 55 |
-| **taste-frontend** | [Taste Skill v2](https://github.com/Leonxlnx/taste-skill) | Design system: typography scales, spacing grids, color theory, visual hierarchy | 1,206 |
-| **color-expert** | [meodai/color-expert](https://github.com/meodai/skill.color-expert) | Color science: OKLCH color spaces, palette generation, APCA/WCAG contrast, 144 reference files | 277 |
-| **typography** | [petekp/agent-skills](https://github.com/petekp/agent-skills) | Bringhurst principles: font pairing, 6 type scales, variable fonts, CJK/RTL i18n | 444 |
-| **motion-design** | [LottieFiles](https://github.com/LottieFiles/motion-design-skill) | Disney's 12 principles for UI, motion personality archetypes, duration/easing tables | 315 |
-| **implementation-rules** | [Synergy](https://github.com/EricSanchezok/synergy-frontend-kit) | 24 anti-slop coding rules extracted from [Impeccable](https://github.com/pbakaus/impeccable) | 50 |
-| **a11y-audit** | [snapsynapse/skill-a11y-audit](https://github.com/snapsynapse/skill-a11y-audit) | WCAG 2.1 AA scanning: axe-core + Puppeteer, delta tracking, structured reports | 425 |
-| **soft-design** | [Taste Skill](https://github.com/Leonxlnx/taste-skill) | Premium, gentle interfaces — rounded corners, soft shadows, warm palettes, generous whitespace | 98 |
-| **minimalist-design** | [Taste Skill](https://github.com/Leonxlnx/taste-skill) | Reductive design — essential elements only, negative space as a feature, typography-driven layouts | 85 |
+The plugin contributes:
 
----
+- `Frontend Kit` settings section
+- `Design Readiness` workspace panel
 
-## Credits
+The panel is intentionally read-only: it shows status, commands, versions, and next checks without directly running shell setup.
 
-Skills are sourced and adapted from community projects:
+## Non-Synergy Skill Install
 
-| Upstream Project | License | What we include |
-|-----------------|---------|----------------|
-| [Anthropic Skills](https://github.com/anthropics/skills) | Apache 2.0 | `frontend-design` SKILL.md |
-| [Taste Skill](https://github.com/Leonxlnx/taste-skill) | MIT | `taste-frontend`, `soft-design`, `minimalist-design` SKILL.md |
-| [Impeccable](https://github.com/pbakaus/impeccable) | MIT | 24 anti-slop rules extracted into `implementation-rules` |
-| [meodai/skill.color-expert](https://github.com/meodai/skill.color-expert) | Apache 2.0 | `color-expert` SKILL.md |
-| [petekp/agent-skills](https://github.com/petekp/agent-skills) | MIT | `typography` SKILL.md |
-| [LottieFiles/motion-design-skill](https://github.com/LottieFiles/motion-design-skill) | MIT | `motion-design` SKILL.md |
-| [snapsynapse/skill-a11y-audit](https://github.com/snapsynapse/skill-a11y-audit) | MIT | `a11y-audit` SKILL.md |
+The skills are still usable by other Agent Skills-compatible tools:
 
-`project-init` is original to this project.
+```bash
+npx skills add SII-Holos/synergy-frontend-kit --all
+```
 
----
+During migration:
+
+```bash
+npx skills add EricSanchezok/synergy-frontend-kit --all
+```
+
 ## Configuration
 
-Disable specific MCP servers in your `synergy.jsonc`:
+Synergy plugin config defaults:
 
 ```jsonc
 {
@@ -162,70 +103,73 @@ Disable specific MCP servers in your `synergy.jsonc`:
       "mcp": {
         "shadcn": true,
         "layoutContext": true,
-        "playwright": true
+        "playwright": true,
+        "startup": "lazy",
+        "timeoutMs": 120000
+      },
+      "setup": {
+        "autoPrompt": true,
+        "visualVerification": "smoke"
       }
     }
   }
 }
 ```
 
----
+## Syncing Upstream Skills
 
-## Architecture
-
-```
-┌──────────────────────────────────────────────────────┐
-│                    Synergy Runtime                    │
-│                                                      │
-│  ┌──────────────────┐            ┌──────────────────┐│
-│  │  Design Skills   │            │    MCP Stack     ││
-│  │  (10 SKILL.md)   │            │  shadcn          ││
-│  │                   │            │  layout-         ││
-│  │  Available on-    │            │  context         ││
-│  │  demand via the   │            │  playwright      ││
-│  │  skill() tool     │            │                  ││
-│  └────────┬──────────┘            └────────┬─────────┘│
-│           │                                │          │
-│           ▼                                ▼          │
-│  ┌─────────────────────────────────────────────────┐ │
-│  │          Agent produces polished UI              │ │
-│  │  → follows design methodology                   │ │
-│  │  → uses real components (not generated)         │ │
-│  │  → validates against design tokens              │ │
-│  │  → visually verifies output                     │ │
-│  └─────────────────────────────────────────────────┘ │
-└──────────────────────────────────────────────────────┘
-```
-
----
-
-## For maintainers
-
-Sync bundled skills with upstream repos:
+One-command upstream sync is a hard compatibility guarantee for this repository.
 
 ```bash
-bash scripts/update.sh --dry-run   # preview changes
-bash scripts/update.sh              # apply updates
+bash scripts/update.sh --dry-run
+bash scripts/update.sh
 ```
 
-Then commit, tag, and release. Users upgrade via `synergy plugin update synergy-frontend-kit`.
+The sync source of truth is `skills.sources.json`. It records each upstream repo, ref, bundle path, included files, license files, aliases, and local patch policy.
 
----
+The sync command:
 
-## Requirements
+1. Clones upstream repositories.
+2. Copies full skill bundles, including references, scripts, assets, and licenses.
+3. Normalizes public skill names to this plugin's stable names.
+4. Syncs descriptions into `src/index.ts` and `plugin.json`.
+5. Runs bundle verification.
 
-- Synergy ≥ 2.1.4
-- Bun ≥ 1.2.0
-- Node.js (for `npx` MCP servers)
+## Verification
 
----
+```bash
+bun install
+bun run verify:skills
+bun run validate:manifest
+bun test
+bun run typecheck
+bun run validate:plugin
+bun run build:plugin
+bun run pack:plugin
+```
+
+Plugin authoring commands come from `@ericsanchezok/synergy-plugin-kit >=2.2.2`. Use `synergy-plugin ...` or the package scripts for validation, build, pack, sign, and marketplace publishing. Use the Synergy CLI for runtime install and local registry smoke tests.
+
+## Official Release
+
+See [docs/RELEASE.md](docs/RELEASE.md).
+
+The official marketplace path is:
+
+```bash
+synergy-plugin publish-market \
+  --repo https://github.com/SII-Holos/synergy-frontend-kit \
+  --changelog "Release notes for this version"
+```
+
+That command validates, builds, packs, signs, uploads or checks GitHub Release assets, writes the `SII-Holos/synergy-plugins` entry, regenerates `registry.json`, validates the registry, and opens or prepares the PR. Because this is an SII official plugin, the registry PR should mark the entry `official: true` and `verified: true` after maintainer review.
 
 ## Security
 
-This plugin runs `npx` with `@latest` tags for MCP servers and setup commands. The packages are well-maintained (`shadcn`, `@playwright/mcp` by Microsoft, `@layoutdesign/context`) but review their supply chain before installing. Pin versions in your own MCP config if you need reproducibility.
+See [SECURITY.md](SECURITY.md).
 
----
+This plugin declares shell, filesystem write, network, and MCP spawn permissions because setup commands and MCP servers need them. Runtime UI surfaces do not execute setup directly.
 
 ## License
 
-MIT
+MIT. Bundled skills keep their upstream licenses and provenance in `skills.sources.json` and included license files.

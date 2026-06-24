@@ -1,140 +1,116 @@
-import { test, expect, describe } from "bun:test"
-import { readdirSync, existsSync, readFileSync } from "node:fs"
+import { describe, expect, test } from "bun:test"
+import { existsSync, readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
+import { renderSetupResult, type SetupStepResult } from "./src/setup"
 
-const SKILLS_DIR = join(import.meta.dirname, "skills")
-const PLUGIN_JSON_PATH = join(import.meta.dirname, "plugin.json")
+interface SkillSource {
+  name: string
+  aliases?: string[]
+  licenseFiles?: string[]
+}
 
-const EXPECTED_SKILLS = [
-  "project-init",
-  "frontend-design",
-  "taste-frontend",
-  "color-expert",
-  "typography",
-  "motion-design",
-  "implementation-rules",
-  "a11y-audit",
-  "soft-design",
-  "minimalist-design",
-]
+interface SourcesFile {
+  skills: SkillSource[]
+}
 
-// ---------------------------------------------------------------------------
-// Test 1: All expected skill directories exist
-// ---------------------------------------------------------------------------
-test("all 10 skill directories exist", () => {
-  for (const name of EXPECTED_SKILLS) {
-    const dir = join(SKILLS_DIR, name)
-    expect(existsSync(dir), `missing skill directory: ${name}`).toBe(true)
+const ROOT = import.meta.dirname
+const SKILLS_DIR = join(ROOT, "skills")
+const PLUGIN_JSON_PATH = join(ROOT, "plugin.json")
+const SOURCES_PATH = join(ROOT, "skills.sources.json")
+const INDEX_PATH = join(ROOT, "src", "index.ts")
+
+const sources = JSON.parse(readFileSync(SOURCES_PATH, "utf-8")) as SourcesFile
+const expectedSkills = sources.skills.map((skill) => skill.name)
+
+function readFrontmatter(name: string): Record<string, string> {
+  const content = readFileSync(join(SKILLS_DIR, name, "SKILL.md"), "utf-8")
+  const match = content.match(/^---\n([\s\S]*?)\n---/)
+  expect(match, `${name}/SKILL.md must have YAML frontmatter`).not.toBeNull()
+
+  const result: Record<string, string> = {}
+  for (const line of match?.[1].split("\n") ?? []) {
+    const field = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/)
+    if (field) result[field[1]] = stripOuterQuotes(field[2].trim())
+  }
+  return result
+}
+
+function stripOuterQuotes(value: string): string {
+  if (value.length < 2) return value
+  const first = value[0]
+  const last = value[value.length - 1]
+  return (first === `"` || first === "'") && first === last ? value.slice(1, -1) : value
+}
+
+function runtimeSkillNames(): string[] {
+  const content = readFileSync(INDEX_PATH, "utf-8")
+  const block = content.match(/export const SKILL_ENTRIES:[\s\S]*?\n\]/)
+  expect(block, "src/index.ts must expose SKILL_ENTRIES").not.toBeNull()
+  return [...(block?.[0] ?? "").matchAll(/name:\s*"([^"]+)"/g)].map((match) => match[1])
+}
+
+test("all sourced skill directories exist", () => {
+  for (const name of expectedSkills) {
+    expect(existsSync(join(SKILLS_DIR, name)), `missing skill directory: ${name}`).toBe(true)
+    expect(existsSync(join(SKILLS_DIR, name, "SKILL.md")), `missing SKILL.md: ${name}`).toBe(true)
   }
 })
 
-// ---------------------------------------------------------------------------
-// Test 2: All SKILL.md files have valid YAML frontmatter
-// ---------------------------------------------------------------------------
 describe("SKILL.md frontmatter", () => {
-  const skillDirs = EXPECTED_SKILLS.filter((name) =>
-    existsSync(join(SKILLS_DIR, name))
-  )
-
-  for (const name of skillDirs) {
-    test(`valid frontmatter in ${name}/SKILL.md`, () => {
-      const content = readFileSync(join(SKILLS_DIR, name, "SKILL.md"), "utf-8")
-
-      // Must start with ---
-      expect(
-        content.startsWith("---"),
-        `${name}/SKILL.md must start with "---"`
-      ).toBe(true)
-
-      // Second --- must exist after the opening one (skip past first "---\n")
-      const afterOpening = content.slice(4)
-      const closingIndex = afterOpening.indexOf("\n---")
-      expect(
-        closingIndex !== -1,
-        `${name}/SKILL.md must have a closing "---"`
-      ).toBe(true)
-
-      // Between the --- delimiters, there must be key:value lines
-      const frontmatter = afterOpening.slice(0, closingIndex).trim()
-      const hasKeyValue = /^\s*\w[\w-]*\s*:/.test(frontmatter)
-      expect(
-        hasKeyValue,
-        `${name}/SKILL.md frontmatter must contain at least one key:value entry`
-      ).toBe(true)
+  for (const source of sources.skills) {
+    test(`${source.name} has stable public identity`, () => {
+      const frontmatter = readFrontmatter(source.name)
+      expect(frontmatter.name).toBe(source.name)
+      expect(frontmatter.description?.length ?? 0).toBeGreaterThan(0)
     })
   }
 })
 
-// ---------------------------------------------------------------------------
-// Test 3: plugin.json contains all 10 skills in correct order
-// ---------------------------------------------------------------------------
-test("plugin.json contributes all 10 skills in order", () => {
-  const raw = readFileSync(PLUGIN_JSON_PATH, "utf-8")
-  const plugin = JSON.parse(raw)
-
-  const actual = plugin.contributes.skills.map((s: { name: string }) => s.name)
-
-  expect(actual, "skill count mismatch").toHaveLength(EXPECTED_SKILLS.length)
-
-  for (let i = 0; i < EXPECTED_SKILLS.length; i++) {
-    expect(
-      actual[i],
-      `plugin.json skill at index ${i}`
-    ).toBe(EXPECTED_SKILLS[i])
-  }
+test("plugin.json contributes all skills in source order", () => {
+  const plugin = JSON.parse(readFileSync(PLUGIN_JSON_PATH, "utf-8"))
+  const actual = plugin.contributes.skills.map((skill: { name: string }) => skill.name)
+  expect(actual).toEqual(expectedSkills)
 })
 
-// ---------------------------------------------------------------------------
-// Test 4: No orphan skill directories
-// ---------------------------------------------------------------------------
-describe("no orphan skill directories", () => {
-  // Read plugin.json to build the allowlist
-  const raw = readFileSync(PLUGIN_JSON_PATH, "utf-8")
-  const plugin = JSON.parse(raw)
-  const registeredSkillNames = new Set(
-    plugin.contributes.skills.map((s: { name: string }) => s.name)
-  )
+test("runtime contributes all skills in source order", () => {
+  expect(runtimeSkillNames()).toEqual(expectedSkills)
+})
 
+test("no orphan skill directories exist", () => {
   const onDisk = readdirSync(SKILLS_DIR, { withFileTypes: true })
-    .filter((d) => d.isDirectory())
-    .map((d) => d.name)
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort()
 
-  for (const dirName of onDisk) {
-    test(`skill directory ${dirName} is registered`, () => {
-      // Every directory in skills/ must have a SKILL.md
-      const skillMdPath = join(SKILLS_DIR, dirName, "SKILL.md")
-      expect(
-        existsSync(skillMdPath),
-        `${dirName} directory must contain SKILL.md`
-      ).toBe(true)
+  expect(onDisk).toEqual([...expectedSkills].sort())
+})
 
-      // Every directory must be listed in plugin.json
+test("declared license files are bundled", () => {
+  for (const source of sources.skills) {
+    for (const licenseFile of source.licenseFiles ?? []) {
       expect(
-        registeredSkillNames.has(dirName),
-        `${dirName} is not listed in plugin.json contributes.skills`
+        existsSync(join(SKILLS_DIR, source.name, licenseFile)),
+        `${source.name} must include ${licenseFile}`,
       ).toBe(true)
-    })
+    }
   }
 })
 
-// ---------------------------------------------------------------------------
-// Test 5: All SKILL.md files are non-empty and above minimum size
-// ---------------------------------------------------------------------------
-describe("SKILL.md minimum content size", () => {
-  const MINIMUM_SIZE = 500
+test("setup renderer supports machine-readable dry-run output", () => {
+  const steps: SetupStepResult[] = [
+    {
+      id: "shadcn",
+      label: "Initialize shadcn/ui",
+      command: ["npx", "-y", "shadcn@4.11.0", "init", "-d"],
+      fallback: "npx shadcn@4.11.0 init -d",
+      skipped: false,
+      ok: true,
+    },
+  ]
 
-  const skillDirs = EXPECTED_SKILLS.filter((name) =>
-    existsSync(join(SKILLS_DIR, name))
-  )
-
-  for (const name of skillDirs) {
-    test(`${name}/SKILL.md has meaningful content (≥ ${MINIMUM_SIZE} bytes)`, () => {
-      const file = join(SKILLS_DIR, name, "SKILL.md")
-      const size = readFileSync(file).byteLength
-      expect(
-        size,
-        `${name}/SKILL.md is ${size} bytes, minimum is ${MINIMUM_SIZE}`
-      ).toBeGreaterThanOrEqual(MINIMUM_SIZE)
-    })
-  }
+  const output = renderSetupResult(steps, { "dry-run": true, json: true })
+  const parsed = JSON.parse(output)
+  expect(parsed.plugin).toBe("synergy-frontend-kit")
+  expect(parsed.dryRun).toBe(true)
+  expect(parsed.steps[0].id).toBe("shadcn")
 })

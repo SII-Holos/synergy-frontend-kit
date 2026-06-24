@@ -21,7 +21,7 @@ Run each check in order. After each check, apply the fix if needed before moving
 
 **Symptom if missing:** Response text contains "no components.json found", "no registries configured", or similar.
 
-**Fix:** Run `npx shadcn@latest init -d`. The `-d` flag runs in non-interactive mode. If it still prompts, pass `"y"` to stdin.
+**Fix:** Ask for user approval, then run `npx shadcn@4.11.0 init -d`. The `-d` flag runs in non-interactive mode. If it still prompts, pass `"y"` to stdin.
 
 ### 2. layout-context check
 
@@ -29,7 +29,7 @@ Run each check in order. After each check, apply the fix if needed before moving
 
 **Symptom if missing:** Returns empty data — no tokens, no colors, no spacing, no design system loaded. `check_compliance` returns `passed: true` even with nothing loaded (false negative — unreliable as a probe).
 
-**Fix:** Run `npx @layoutdesign/context init`.
+**Fix:** Ask for user approval, then run `npx @layoutdesign/context@0.15.3 init`.
 
 ### 3. Playwright check
 
@@ -37,14 +37,14 @@ Run each check in order. After each check, apply the fix if needed before moving
 
 **Symptom if missing:** Error mentioning "browser is not installed", "Playwright browser", or "executable doesn't exist".
 
-**Fix:** Run `npx playwright install --with-deps chromium`. This is slow — warn the user it may take 1–2 minutes.
+**Fix:** Ask for user approval, then run `npx playwright@1.61.1 install --with-deps chromium`. This is slow - warn the user it may take 1-2 minutes.
 
 ## Decision logic
 
 ```
 Before starting ANY frontend design work:
   1. Run the preflight sequence on all 3 servers
-  2. If any check fails, auto-apply the fix (no need to ask user permission for tooling setup)
+  2. If any check fails, ask before running setup because it can write files and download packages
   3. If ALL checks pass (or fixes succeed), proceed with the design task
   4. If a fix fails, report the failure to the user with the manual command and continue in degraded mode
   5. Cache: once all checks pass in a session, do not re-run them
@@ -56,7 +56,7 @@ Once all three checks pass in a given session, set a mental flag ("project-init:
 
 ## Edge cases
 
-- **No shell access:** If you don't have permission to run shell commands, tell the user to run `synergy synergy-frontend-kit setup` manually and do not proceed with design work until they confirm it's done.
+- **No shell access:** If you don't have permission to run shell commands, tell the user to run `synergy synergy-frontend-kit setup --dry-run --json` first, then `synergy synergy-frontend-kit setup` after review.
 - **shadcn init still prompts:** The `-d` flag should prevent interactive prompts, but if it doesn't, pass `y\n` to stdin.
 - **Playwright install times out:** If the install takes longer than 3 minutes, skip it and continue without visual verification. Note this in your response so the user knows screenshots won't work until the browser is installed.
 - **Partial setup:** If only some checks pass, fix the failing ones and skip the ones that already passed (caching applies per-check, not just at the end).

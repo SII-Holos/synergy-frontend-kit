@@ -1,51 +1,278 @@
 {
   "name": "synergy-frontend-kit",
-  "version": "0.1.0",
-  "description": "Professional frontend design capabilities for Synergy agents — design methodology skills, shadcn/ui component access, layout enforcement, and visual verification.",
-  "author": "Synergy Community",
-  "repository": "https://github.com/EricSanchezok/synergy-frontend-kit",
+  "version": "0.2.0",
+  "description": "Official frontend capability kit for Synergy agents: curated design skills, pinned MCP tooling, setup automation, and design-readiness UI.",
+  "author": "SII Holos",
+  "homepage": "https://github.com/SII-Holos/synergy-frontend-kit",
+  "repository": "https://github.com/SII-Holos/synergy-frontend-kit",
   "license": "MIT",
-  "keywords": ["frontend", "design", "ui", "tailwind", "shadcn", "react"],
-  "icon": "🎨",
-  "minSynergyVersion": "2.1.4",
-  "engines": { "synergy": ">=2.1.4", "bun": ">=1.2.0" },
+  "keywords": [
+    "synergy-plugin",
+    "frontend",
+    "design",
+    "ui",
+    "tailwind",
+    "shadcn",
+    "accessibility"
+  ],
+  "icon": "palette",
+  "minSynergyVersion": "2.2.0",
+  "engines": {
+    "synergy": ">=2.2.0",
+    "bun": ">=1.2.0"
+  },
   "main": "./src/index.ts",
+  "trust": {
+    "requestedTier": "trusted-import",
+    "reason": "Official SII Holos plugin UI with settings and workspace status panels."
+  },
+  "permissions": {
+    "tools": {
+      "invoke": true,
+      "filesystem": "write",
+      "network": true,
+      "shell": true,
+      "mcp": "spawn"
+    },
+    "data": {
+      "session": "none",
+      "workspace": "metadata",
+      "config": "plugin",
+      "secrets": "none"
+    },
+    "network": {
+      "connectDomains": [
+        "registry.npmjs.org",
+        "api.github.com",
+        "github.com",
+        "raw.githubusercontent.com"
+      ],
+      "resourceDomains": [],
+      "frameDomains": []
+    },
+    "ui": {
+      "toolRenderers": false,
+      "partRenderers": false,
+      "workspacePanels": true,
+      "globalPanels": false,
+      "settings": true,
+      "themes": false,
+      "icons": false,
+      "routes": false,
+      "trustedImport": true,
+      "sandboxIframe": false
+    },
+    "hooks": {
+      "events": "none",
+      "eventNames": [],
+      "toolExecute": "none",
+      "permissionAsk": "none",
+      "promptTransform": false,
+      "compactionTransform": false
+    }
+  },
+  "runtime": {
+    "mode": "process",
+    "minRuntimeApiVersion": "2.2.0",
+    "resources": {
+      "memoryMb": 256,
+      "startupTimeoutMs": 15000,
+      "requestTimeoutMs": 120000,
+      "maxConcurrentRequests": 4,
+      "maxLogBytesPerMinute": 262144
+    }
+  },
   "contributes": {
     "skills": [
-      { "name": "project-init", "description": "Teaches the agent to self-diagnose and auto-initialize frontend tooling (shadcn/ui, layout.design, Playwright) when MCP tools return configuration-missing errors.", "dir": "skills/project-init" },
-      { "name": "frontend-design", "description": "Anthropic's frontend design methodology: plan-before-code, declarative-first, atomic refinement. Use when building or redesigning frontend UIs.", "dir": "skills/frontend-design" },
-      { "name": "taste-frontend", "description": "Taste Skill v2: systematic design sensibility for frontend. Covers typography, spacing, color theory, and visual hierarchy.", "dir": "skills/taste-frontend" },
-      { "name": "color-expert", "description": "Color science expertise: OKLCH color spaces, palette generation algorithms, APCA/WCAG contrast, color harmony theory, and CSS Color 4/5 syntax. Use for any color selection, palette generation, or accessibility contrast work. 144 reference files of deep color knowledge.", "dir": "skills/color-expert" },
-      { "name": "typography", "description": "Typography grounded in Bringhurst principles: font pairing methodology, 6 modular type scales, variable fonts, CJK/RTL internationalization, OpenType features, and web font loading strategies. Use for typeface selection, type system design, or font pairing.", "dir": "skills/typography" },
-      { "name": "motion-design", "description": "Universal motion design principles (LottieFiles official): Disney's 12 principles adapted for UI, emotion-to-motion mapping, motion personality archetypes, duration/easing tables, and quality checklist. Use when planning animations or motion systems.", "dir": "skills/motion-design" },
-      { "name": "implementation-rules", "description": "24 deterministic anti-slop coding rules to prevent AI-generated frontend patterns. Covers color, typography, layout, motion, and accessibility. Standing orders for all frontend code.", "dir": "skills/implementation-rules" },
-      { "name": "a11y-audit", "description": "Drop-in WCAG 2.1 AA accessibility scanning: template-aware sampling with axe-core + Puppeteer, delta tracking between audits, and structured report generation. Use when auditing or improving accessibility.", "dir": "skills/a11y-audit" },
-      { "name": "soft-design", "description": "Taste soft-skill: design language for gentle, approachable interfaces. Rounded corners, soft shadows, warm palettes, generous whitespace.", "dir": "skills/soft-design" },
-      { "name": "minimalist-design", "description": "Taste minimalist-skill: reductive design principles. Essential elements only, negative space as a feature, typography-driven layouts.", "dir": "skills/minimalist-design" }
+      {
+        "name": "project-init",
+        "description": "Teaches the agent to self-diagnose and auto-initialize frontend tooling before starting design work. Use when starting a new frontend project or when MCP tools return errors indicating missing configuration. Triggers: 'new project', 'init', 'setup', 'MCP error', 'tool not available'.",
+        "dir": "skills/project-init"
+      },
+      {
+        "name": "frontend-design",
+        "description": "Guidance for distinctive, intentional visual design when building new UI or reshaping an existing one. Helps with aesthetic direction, typography, and making choices that don't read as templated defaults.",
+        "dir": "skills/frontend-design"
+      },
+      {
+        "name": "taste-frontend",
+        "description": "Anti-slop frontend skill for landing pages, portfolios, and redesigns. The agent reads the brief, infers the right design direction, and ships interfaces that do not look templated. Real design systems when applicable, audit-first on redesigns, strict pre-flight check.",
+        "dir": "skills/taste-frontend"
+      },
+      {
+        "name": "color-expert",
+        "description": "Use when working with color naming, color theory, color spaces, color definitions, or any task involving color knowledge - palettes, ramps, gradients, conversions, accessibility, perceptual matching, pigment mixing, print-vs-screen color, CSS color syntax, or historical color terminology. Use this skill whenever the user is choosing, comparing, generating, naming, converting, or explaining colors, even if they do not explicitly ask for \"color theory.\"",
+        "dir": "skills/color-expert"
+      },
+      {
+        "name": "typography",
+        "description": "Apply professional typography principles to create readable, hierarchical, and aesthetically refined interfaces. Use when setting type scales, choosing fonts, adjusting spacing, designing text-heavy layouts, implementing dark mode typography, or when asked about readability, font pairing, line height, measure, typographic hierarchy, variable fonts, font loading, or OpenType features.",
+        "dir": "skills/typography"
+      },
+      {
+        "name": "motion-design",
+        "description": "Applies motion design principles to create emotionally-driven, technically sound animations and transitions. Provides timing, easing, choreography, and Disney animation principles adapted for UI. Use when creating animations, transitions, micro-interactions, loading states, page transitions, scroll-triggered effects, or any motion work. Works with CSS, Framer Motion, GSAP, Lottie, Spring, or any animation system.",
+        "dir": "skills/motion-design"
+      },
+      {
+        "name": "implementation-rules",
+        "description": "Deterministic coding rules to prevent AI-generated frontend anti-patterns. Covers color palettes, typography, layout structure, spacing, motion, and accessibility — 24 concrete DO/DON'T rules. Use when writing any frontend code — these are standing orders, not situational guidance. Triggers: 'CSS', 'style', 'component', 'layout', 'Tailwind', 'animation', 'font', 'color', 'spacing', 'accessibility'.",
+        "dir": "skills/implementation-rules"
+      },
+      {
+        "name": "a11y-audit",
+        "description": "Run accessibility audits on web projects combining automated scanning (axe-core, Lighthouse) with WCAG 2.1 AA compliance mapping, manual check guidance, and structured reporting. Output is configurable: markdown report only, markdown plus machine-readable JSON, or markdown plus issue tracker integration. Use this skill whenever the user mentions \"accessibility audit\", \"a11y audit\", \"WCAG audit\", \"accessibility check\", \"compliance scan\", or asks to check a web project for accessibility issues. Also trigger when the user wants to verify WCAG conformance or map findings to a specific standard (CAN-ASC-6.2, EN 301 549, ADA/AODA).",
+        "dir": "skills/a11y-audit"
+      },
+      {
+        "name": "soft-design",
+        "description": "Teaches the AI to design like a high-end agency. Defines the exact fonts, spacing, shadows, card structures, and animations that make a website feel expensive. Blocks all the common defaults that make AI designs look cheap or generic.",
+        "dir": "skills/soft-design"
+      },
+      {
+        "name": "minimalist-design",
+        "description": "Clean editorial-style interfaces. Warm monochrome palette, typographic contrast, flat bento grids, muted pastels. No gradients, no heavy shadows.",
+        "dir": "skills/minimalist-design"
+      }
     ],
     "agents": [],
     "mcp": {
-      "shadcn": { "type": "local", "command": ["npx", "-y", "shadcn@latest", "mcp"], "description": "shadcn/ui component registry and code generation" },
-      "layout-context": { "type": "local", "command": ["npx", "-y", "@layoutdesign/context", "serve"], "description": "Design system enforcement and layout context" },
-      "playwright": { "type": "local", "command": ["npx", "-y", "@playwright/mcp@latest"], "description": "Browser automation for visual verification and screenshots" }
+      "defaults": {
+        "startup": "lazy",
+        "required": false,
+        "connectTimeout": 10000,
+        "listTimeout": 15000,
+        "callTimeout": 120000,
+        "idleShutdownMs": 600000,
+        "retry": {
+          "maxAttempts": 2,
+          "backoffMs": 500,
+          "backoffMultiplier": 2,
+          "cooldownMs": 30000
+        },
+        "tools": {
+          "approval": "auto",
+          "maxOutputBytes": 1048576
+        },
+        "toolCache": {
+          "mode": "session",
+          "ttlMs": 300000
+        }
+      },
+      "locked": true,
+      "shadcn": {
+        "type": "local",
+        "command": ["npx", "-y", "shadcn@4.11.0", "mcp"],
+        "description": "Pinned shadcn/ui component registry and code-generation MCP server.",
+        "startup": "lazy",
+        "required": false,
+        "toolFilter": {
+          "exclude": []
+        }
+      },
+      "layout-context": {
+        "type": "local",
+        "command": ["npx", "-y", "@layoutdesign/context@0.15.3", "serve"],
+        "description": "Pinned layout.design context server for design-system enforcement.",
+        "startup": "lazy",
+        "required": false
+      },
+      "playwright": {
+        "type": "local",
+        "command": ["npx", "-y", "@playwright/mcp@0.0.76"],
+        "description": "Pinned Playwright MCP server for screenshots, visual checks, and browser automation.",
+        "startup": "lazy",
+        "required": false,
+        "callTimeout": 180000
+      }
     },
     "commands": [
-      { "name": "setup", "description": "Initialize frontend tooling in the current project (shadcn/ui, layout.design, Playwright)" }
+      {
+        "name": "setup",
+        "description": "Initialize frontend tooling in the current project (shadcn/ui, layout.design, Playwright)"
+      }
     ],
     "config": {
       "schema": {
-        "mcp": {
-          "type": "object",
-          "properties": {
-            "shadcn": { "type": "boolean", "default": true },
-            "layoutContext": { "type": "boolean", "default": true },
-            "playwright": { "type": "boolean", "default": true }
+        "type": "object",
+        "properties": {
+          "mcp": {
+            "type": "object",
+            "properties": {
+              "shadcn": {
+                "type": "boolean",
+                "default": true
+              },
+              "layoutContext": {
+                "type": "boolean",
+                "default": true
+              },
+              "playwright": {
+                "type": "boolean",
+                "default": true
+              },
+              "startup": {
+                "type": "string",
+                "enum": ["lazy", "manual"],
+                "default": "lazy"
+              },
+              "timeoutMs": {
+                "type": "number",
+                "default": 120000
+              }
+            }
+          },
+          "setup": {
+            "type": "object",
+            "properties": {
+              "autoPrompt": {
+                "type": "boolean",
+                "default": true
+              },
+              "visualVerification": {
+                "type": "string",
+                "enum": ["off", "smoke", "strict"],
+                "default": "smoke"
+              }
+            }
           }
-        }
+        },
+        "additionalProperties": false
       },
       "defaults": {
-        "mcp": { "shadcn": true, "layoutContext": true, "playwright": true }
+        "mcp": {
+          "shadcn": true,
+          "layoutContext": true,
+          "playwright": true,
+          "startup": "lazy",
+          "timeoutMs": 120000
+        },
+        "setup": {
+          "autoPrompt": true,
+          "visualVerification": "smoke"
+        }
       }
+    },
+    "ui": {
+      "entry": "./dist/ui/index.js",
+      "minUIApiVersion": "2.0.0",
+      "workspacePanels": [
+        {
+          "id": "design-readiness",
+          "label": "Design Readiness",
+          "icon": "panel-right",
+          "exportName": "DesignReadinessPanel"
+        }
+      ],
+      "settings": [
+        {
+          "id": "frontend-kit",
+          "label": "Frontend Kit",
+          "icon": "palette",
+          "group": "plugins",
+          "exportName": "SettingsPanel"
+        }
+      ]
     }
   }
 }

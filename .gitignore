@@ -1,3 +1,7 @@
 node_modules/
 dist/
 .tmp/
+*.synergy-plugin.tgz
+*.synergy-plugin.tgz.sig
+synergy.tar.gz
+.synergy-bin/

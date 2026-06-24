@@ -1,34 +1,147 @@
 import type { PluginCLICommand, PluginInput } from "@ericsanchezok/synergy-plugin"
 
-interface SetupArgs {
+export const PINNED_TOOL_VERSIONS = {
+  shadcn: "4.11.0",
+  layoutContext: "0.15.3",
+  playwrightMcp: "0.0.76",
+  playwright: "1.61.1",
+} as const
+
+export interface SetupArgs {
   "skip-shadcn"?: boolean
   "skip-layout"?: boolean
   "skip-playwright"?: boolean
+  "dry-run"?: boolean
+  json?: boolean
 }
 
-async function execStep(
-  ctx: PluginInput,
-  label: string,
-  command: string[],
-  fallback: string,
-): Promise<string[]> {
-  const results: string[] = []
-  results.push(`▸ ${label}...`)
-  try {
-    await ctx.$`${command[0]} ${command.slice(1)}`.quiet()
-    results.push(`  ✓ ${label.split("(")[0].trim()} complete`)
-  } catch (err) {
-    results.push(`  ✗ ${label.split("(")[0].trim()} failed: ${err instanceof Error ? err.message : String(err)}`)
-    results.push(`  Run manually: ${fallback}`)
+export interface SetupStepResult {
+  id: string
+  label: string
+  command: string[]
+  fallback: string
+  skipped: boolean
+  ok: boolean
+  error?: string
+}
+
+interface SetupStep {
+  id: string
+  label: string
+  skipFlag: keyof SetupArgs
+  command: string[]
+  fallback: string
+}
+
+const SETUP_STEPS: SetupStep[] = [
+  {
+    id: "shadcn",
+    label: "Initialize shadcn/ui",
+    skipFlag: "skip-shadcn",
+    command: ["npx", "-y", `shadcn@${PINNED_TOOL_VERSIONS.shadcn}`, "init", "-d"],
+    fallback: `npx shadcn@${PINNED_TOOL_VERSIONS.shadcn} init -d`,
+  },
+  {
+    id: "layout-context",
+    label: "Initialize layout.design",
+    skipFlag: "skip-layout",
+    command: ["npx", "-y", `@layoutdesign/context@${PINNED_TOOL_VERSIONS.layoutContext}`, "init"],
+    fallback: `npx @layoutdesign/context@${PINNED_TOOL_VERSIONS.layoutContext} init`,
+  },
+  {
+    id: "playwright",
+    label: "Install Playwright Chromium",
+    skipFlag: "skip-playwright",
+    command: ["npx", "-y", `playwright@${PINNED_TOOL_VERSIONS.playwright}`, "install", "--with-deps", "chromium"],
+    fallback: `npx playwright@${PINNED_TOOL_VERSIONS.playwright} install --with-deps chromium`,
+  },
+]
+
+function commandText(command: string[]): string {
+  return command.join(" ")
+}
+
+function formatError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
+
+export async function runSetup(ctx: PluginInput, args: SetupArgs): Promise<SetupStepResult[]> {
+  const results: SetupStepResult[] = []
+
+  for (const step of SETUP_STEPS) {
+    const skipped = Boolean(args[step.skipFlag])
+    const result: SetupStepResult = {
+      id: step.id,
+      label: step.label,
+      command: step.command,
+      fallback: step.fallback,
+      skipped,
+      ok: skipped,
+    }
+
+    if (skipped || args["dry-run"]) {
+      result.ok = true
+      results.push(result)
+      continue
+    }
+
+    try {
+      await ctx.$`${step.command}`.quiet()
+      result.ok = true
+    } catch (error) {
+      result.ok = false
+      result.error = formatError(error)
+    }
+
+    results.push(result)
   }
-  results.push("")
+
   return results
+}
+
+export function renderSetupResult(results: SetupStepResult[], args: SetupArgs): string {
+  if (args.json) {
+    return JSON.stringify(
+      {
+        plugin: "synergy-frontend-kit",
+        dryRun: Boolean(args["dry-run"]),
+        ok: results.every((result) => result.ok),
+        versions: PINNED_TOOL_VERSIONS,
+        steps: results,
+      },
+      null,
+      2,
+    )
+  }
+
+  const lines: string[] = ["Synergy Frontend Kit setup", ""]
+
+  for (const result of results) {
+    const prefix = result.skipped ? "SKIP" : result.ok ? "OK" : "FAIL"
+    lines.push(`[${prefix}] ${result.label}`)
+    lines.push(`      ${commandText(result.command)}`)
+
+    if (args["dry-run"]) {
+      lines.push("      dry run only; no command was executed")
+    } else if (!result.ok) {
+      lines.push(`      ${result.error ?? "Command failed"}`)
+      lines.push(`      Run manually: ${result.fallback}`)
+    }
+
+    lines.push("")
+  }
+
+  lines.push("Next steps")
+  lines.push(`  - Add shadcn components: npx shadcn@${PINNED_TOOL_VERSIONS.shadcn} add button card dialog`)
+  lines.push("  - Review .layout/kit.json if layout.design initialized it")
+  lines.push("  - Run with --json for machine-readable setup status")
+
+  return lines.join("\n")
 }
 
 export function setupCommand(ctx: PluginInput): PluginCLICommand {
   return {
-    description:
-      "Initialize frontend tooling in the current project (shadcn/ui, layout.design, Playwright browsers)",
+    description: "Initialize frontend tooling in the current project (shadcn/ui, layout.design, Playwright browsers)",
     options: {
       "skip-shadcn": {
         type: "boolean",
@@ -42,54 +155,19 @@ export function setupCommand(ctx: PluginInput): PluginCLICommand {
         type: "boolean",
         description: "Skip Playwright browser installation for visual testing",
       },
+      "dry-run": {
+        type: "boolean",
+        description: "Print the setup plan without running shell commands",
+      },
+      json: {
+        type: "boolean",
+        description: "Return machine-readable JSON output",
+      },
     } as const,
-    async execute(args: SetupArgs) {
-      const lines: string[] = ["🎨 Synergy Frontend Kit — Setup", ""]
-
-      if (!args["skip-shadcn"]) {
-        for (const line of await execStep(
-          ctx,
-          "Initializing shadcn/ui...",
-          ["npx", "shadcn@latest", "init", "-d"],
-          "npx shadcn@latest init",
-        )) {
-          lines.push(line)
-        }
-      }
-
-      if (!args["skip-layout"]) {
-        for (const line of await execStep(
-          ctx,
-          "Initializing layout.design...",
-          ["npx", "@layoutdesign/context", "init"],
-          "npx @layoutdesign/context init",
-        )) {
-          lines.push(line)
-        }
-      }
-
-      if (!args["skip-playwright"]) {
-        for (const line of await execStep(
-          ctx,
-          "Installing Playwright browsers (this may take a while)...",
-          ["npx", "playwright", "install", "--with-deps", "chromium"],
-          "npx playwright install --with-deps chromium",
-        )) {
-          lines.push(line)
-        }
-      }
-
-      lines.push("─────────────────────────────────────")
-      lines.push("Setup complete!")
-      lines.push("")
-      lines.push("Next steps:")
-      lines.push("  • Add shadcn components:    npx shadcn@latest add button card dialog")
-      lines.push("  • Customize design tokens:  edit .layout/kit.json")
-      lines.push("")
-      lines.push("Tip: run 'synergy plugin update synergy-frontend-kit' to upgrade to the latest version.")
-      lines.push("─────────────────────────────────────")
-
-      return lines.join("\n")
+    async execute(input) {
+      const args = input as SetupArgs
+      const results = await runSetup(ctx, args)
+      return renderSetupResult(results, args)
     },
   }
 }

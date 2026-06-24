@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
-# Maintainer tool — syncs bundled SKILL.md files with upstream source repositories.
-# Not exposed to end users. Run this locally, then commit and release a new version.
-# Usage: bash scripts/update.sh [--dry-run]
+# Maintainer tool: one-command sync for bundled skill assets.
+# Reads skills.sources.json, syncs upstream bundles, refreshes descriptors,
+# and verifies that bundled markdown links/resources are complete.
+#
+# Usage:
+#   bash scripts/update.sh --dry-run
+#   bash scripts/update.sh
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SKILLS_DIR="$SCRIPT_DIR/../skills"
-TEMP_DIR="$(mktemp -d)"
 DRY_RUN=false
 QUIET=false
 
@@ -17,101 +19,39 @@ for arg in "$@"; do
   esac
 done
 
-cleanup() {
-  rm -rf "$TEMP_DIR"
-}
-trap cleanup EXIT
-
-# Two parallel arrays: skill name and "repo_url::source_path_in_repo"
-SKILLS=(
-  "frontend-design::https://github.com/anthropics/skills.git::skills/frontend-design/SKILL.md"
-  "taste-frontend::https://github.com/Leonxlnx/taste-skill.git::skills/taste-skill/SKILL.md"
-  "color-expert::https://github.com/meodai/skill.color-expert.git::SKILL.md"
-  "typography::https://github.com/petekp/agent-skills.git::skills/typography/SKILL.md"
-  "motion-design::https://github.com/LottieFiles/motion-design-skill.git::skills/motion-design/SKILL.md"
-  "a11y-audit::https://github.com/snapsynapse/skill-a11y-audit.git::a11y-audit/SKILL.md"
-  "soft-design::https://github.com/Leonxlnx/taste-skill.git::skills/soft-skill/SKILL.md"
-  "minimalist-design::https://github.com/Leonxlnx/taste-skill.git::skills/minimalist-skill/SKILL.md"
-)
-
-updated_count=0
-unchanged_count=0
-failed_count=0
-
-for entry in "${SKILLS[@]}"; do
-  skill="${entry%%::*}"
-  rest="${entry#*::}"
-  repo="${rest%%::*}"
-  filepath="${rest#*::}"
-  repo_name=$(basename "$repo" .git)
-  repo_dir="$TEMP_DIR/$repo_name"
-
-  $QUIET || echo "→ $skill ($repo_name)"
-
-  if [[ -d "$repo_dir" ]]; then
-    git -C "$repo_dir" pull --ff-only --depth 1 2>/dev/null || true
-  else
-    git clone --depth 1 --quiet "$repo" "$repo_dir" 2>/dev/null || {
-      echo "  ✘ Failed to clone $repo"
-      failed_count=$((failed_count + 1))
-      continue
-    }
-  fi
-
-  src="$repo_dir/$filepath"
-  dest="$SKILLS_DIR/$skill/SKILL.md"
-
-  if [[ ! -f "$src" ]]; then
-    echo "  ✘ Source not found: $filepath"
-    echo "     Expected at: $src"
-    failed_count=$((failed_count + 1))
-    continue
-  fi
-
-  if $DRY_RUN; then
-    if diff -q "$dest" "$src" &>/dev/null; then
-      $QUIET || echo "  (no changes)"
-      unchanged_count=$((unchanged_count + 1))
-    else
-      echo "  (would update)"
-      diff --unified=2 "$dest" "$src" || true
-      updated_count=$((updated_count + 1))
-    fi
-  else
-    if diff -q "$dest" "$src" &>/dev/null; then
-      $QUIET || echo "  (already up to date)"
-      unchanged_count=$((unchanged_count + 1))
-    else
-      cp "$src" "$dest"
-      echo "  ✓ Updated"
-      updated_count=$((updated_count + 1))
-    fi
-  fi
-done
-
-# Auto-sync skill descriptions into src/index.ts
-$QUIET || echo ""
-$QUIET || echo "→ Syncing skill descriptions to src/index.ts..."
+SYNC_ARGS=()
 if $DRY_RUN; then
-  $QUIET || echo "  (would update src/index.ts)"
-else
-  bun run "$SCRIPT_DIR/sync-descriptions.ts" 2>/dev/null || {
-    echo "  ✘ Failed to sync descriptions"
-  }
+  SYNC_ARGS+=(--dry-run)
+fi
+if $QUIET; then
+  SYNC_ARGS+=(--quiet)
 fi
 
-echo ""
+if ! $QUIET; then
+  echo "Syncing skill bundles from skills.sources.json..."
+fi
+if [ ${#SYNC_ARGS[@]} -gt 0 ]; then
+  bun run "$SCRIPT_DIR/sync-skills.ts" "${SYNC_ARGS[@]}"
+else
+  bun run "$SCRIPT_DIR/sync-skills.ts"
+fi
+
 if $DRY_RUN; then
-  echo "Summary (dry run): $updated_count would update, $unchanged_count unchanged, $failed_count failed"
-  echo "Run without --dry-run to apply updates."
-else
-  echo "Summary: $updated_count updated, $unchanged_count unchanged, $failed_count failed"
-  if [[ $updated_count -gt 0 ]]; then
-    echo "Skills updated. Commit the changes and release a new version."
-    echo "Users upgrade via: synergy plugin update synergy-frontend-kit"
+  if ! $QUIET; then
+    echo ""
+    echo "Skipping descriptor rewrite and verification because this is a dry run."
   fi
+  exit 0
 fi
 
-if [[ $failed_count -gt 0 ]]; then
-  exit 1
+if ! $QUIET; then
+  echo ""
+  echo "Syncing skill descriptions to runtime and plugin manifest..."
 fi
+bun run "$SCRIPT_DIR/sync-descriptions.ts"
+
+if ! $QUIET; then
+  echo ""
+  echo "Verifying bundled skill assets..."
+fi
+bun run "$SCRIPT_DIR/verify-skill-bundles.ts"

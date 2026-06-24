@@ -3,6 +3,8 @@
     "target": "ES2022",
     "module": "preserve",
     "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "jsxImportSource": "solid-js",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -11,8 +13,9 @@
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "types": ["bun"]
   },
-  "include": ["src"],
+  "include": ["src", "scripts", "*.test.ts"],
   "exclude": ["node_modules", "dist"]
 }
