@@ -6,7 +6,7 @@ It bundles curated design skills, pinned MCP servers, setup automation, and a sm
 
 ## Requirements
 
-- Synergy `>=2.2.0`
+- Synergy `>=2.4.1`
 - Bun `>=1.2.0`
 - Node.js and `npx` for MCP servers and setup commands
 
@@ -148,7 +148,7 @@ bun run build:plugin
 bun run pack:plugin
 ```
 
-Plugin authoring commands come from `@ericsanchezok/synergy-plugin-kit >=2.2.2`. Use `synergy-plugin ...` or the package scripts for validation, build, pack, sign, and marketplace publishing. Use the Synergy CLI for runtime install and local registry smoke tests.
+Plugin authoring commands come from `@ericsanchezok/synergy-plugin-kit >=2.4.1`. Use `synergy-plugin ...` or the package scripts for validation, build, pack, sign, and marketplace publishing. Use the Synergy CLI for runtime install and local registry smoke tests.
 
 ## Official Release
 
